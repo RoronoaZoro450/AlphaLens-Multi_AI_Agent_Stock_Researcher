@@ -1,6 +1,6 @@
 # AlphaLens — Multi-Agent AI Stock Researcher
 
-Turns a plain-language query ("Tesla", "is NVDA a buy?") into a full equity research memo — recommendation, conviction, price target, and thesis — by running five specialist AI agents in parallel and synthesizing their findings into one structured report.
+A simple Stock Search Turns into a full equity research memo — recommendation, conviction, price target, and thesis — by running five specialist AI agents in parallel and synthesizing their findings into one structured report.
 
 **Live demo:** https://alphalens-multiaiagentstockresearcher.streamlit.app/ *(free-tier hosting, so the first load can take ~30s to wake up)*
 

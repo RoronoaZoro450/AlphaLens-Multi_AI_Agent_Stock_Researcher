@@ -6,12 +6,12 @@ from AlphaLens.SubAgent.valuation_agent.valuation_agent_state import valuationSt
 from AlphaLens.SubAgent.valuation_agent.valuation_agent_tools import get_company_info, get_dcf_inputs, get_peer_multiples
 from AlphaLens.config.llms import get_report_writer_llm , get_llm_for_tools
 from AlphaLens.SubAgent.valuation_agent.valuation_agent_model import ValuationModel
-
+from langsmith import traceable
 
 valuation_tools = [get_peer_multiples,get_dcf_inputs,get_company_info]
 valuation_tools_node = ToolNode(valuation_tools)
 
-
+@traceable
 def valuation_agent_node(state:valuationState)->valuationState:
     valuation_tools_llm = get_llm_for_tools().bind_tools(valuation_tools)
     response = valuation_tools_llm.invoke(state["messages"])
@@ -22,7 +22,7 @@ def valuation_agent_node(state:valuationState)->valuationState:
 #=============================================================================================
 
 
-
+@traceable
 def compute_val_node(state: valuationState) -> valuationState:
     messages = state['messages']
     data = {}
@@ -134,7 +134,7 @@ def compute_val_node(state: valuationState) -> valuationState:
 #=============================================================================================
 
 
-
+@traceable
 def report_node(state: valuationState) -> valuationState:
     computed = state.get("computed_valuations", {})
 

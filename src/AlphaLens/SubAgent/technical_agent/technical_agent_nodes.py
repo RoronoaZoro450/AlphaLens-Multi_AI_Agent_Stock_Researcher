@@ -1,4 +1,5 @@
 from langchain.messages import HumanMessage, SystemMessage
+from langsmith import traceable
 import pandas_ta as ta
 import pandas as pd
 import numpy as np
@@ -27,6 +28,7 @@ def technical_Agent_node(state: TechnicalState)->TechnicalState:
     return {"data": result}
 
 
+@traceable
 def technical_agent_pipeline (ticker:str)->dict:
     period="1y"
     df=yf.Ticker(ticker).history(period=period)
@@ -44,6 +46,7 @@ def technical_agent_pipeline (ticker:str)->dict:
 
 #==========================================================================================
 
+@traceable
 def trend_node(df: pd.DataFrame) -> dict:
     if len(df) < 200:
         raise ValueError(f"Not enough data for SMA 200 — only {len(df)} rows")
@@ -103,6 +106,7 @@ def trend_node(df: pd.DataFrame) -> dict:
         "current_price": round(latest['Close'].item(), 2),
     }
 
+@traceable
 def momentum_node(df: pd.DataFrame) -> dict:
     # RSI
     df['RSI_14'] = ta.rsi(df['Close'], length=14)
@@ -160,6 +164,7 @@ def momentum_node(df: pd.DataFrame) -> dict:
         "roc_10":       round(float(latest['ROC_10']), 2),
     }
 
+@traceable
 def volume_node(df: pd.DataFrame) -> dict:
     df['OBV'] = ta.obv(df['Close'], df['Volume'])
 
@@ -197,6 +202,7 @@ def volume_node(df: pd.DataFrame) -> dict:
         "obv_trend":       obv_trend
     }
 
+@traceable
 def volatility_node(df: pd.DataFrame) -> dict:
     # ATR - 14 Day
     df['ATR_14'] = ta.atr(df['High'], df['Low'], df['Close'], length=14)

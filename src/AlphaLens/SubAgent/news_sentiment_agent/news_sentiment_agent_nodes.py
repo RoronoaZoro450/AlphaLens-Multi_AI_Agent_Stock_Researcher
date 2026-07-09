@@ -6,7 +6,7 @@ from AlphaLens.config.llms import get_llm_for_tools, get_report_writer_llm
 from langgraph.prebuilt import ToolNode
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage, AIMessage
 from dotenv import load_dotenv
-
+from langsmith import traceable
 load_dotenv()  
 
 
@@ -14,11 +14,12 @@ NewsSentiment_tools = [earning_call,news_yfinance,get_insider_transactions,get_e
 NewsSentiment_tool_node = ToolNode(NewsSentiment_tools)
 NewsSentiment_llm_tools = get_llm_for_tools().bind_tools(NewsSentiment_tools)
 
+@traceable
 def NewsSentimentAgent_node(state:NewsSentimentState)->NewsSentimentState:
     response = NewsSentiment_llm_tools.invoke(state["messages"])
     return {"messages": [response]}
 
-
+@traceable
 def report_node(state: NewsSentimentState):
     """
     Report-writing LLM — receives ONLY plain text tool data.

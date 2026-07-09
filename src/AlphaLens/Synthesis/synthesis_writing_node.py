@@ -3,8 +3,9 @@ from AlphaLens.Synthesis.synthesis_model import InvestmentMemo
 from langchain_core.messages import HumanMessage, SystemMessage
 from AlphaLens.graph.state import OrchestratorState
 from AlphaLens.config.llms import get_synthesis_llm
+from langsmith import traceable
 
-
+@traceable
 async def synthesis_node(state: OrchestratorState) -> dict:
     payload = build_synthesis_input(state)
 
@@ -17,7 +18,6 @@ async def synthesis_node(state: OrchestratorState) -> dict:
     response = await synthesis_llm.ainvoke(messages)
 
     return {"synthesis": response.model_dump()}
-
 
 def build_synthesis_input(state: OrchestratorState) -> str:
     user_payload = f"""

@@ -6,18 +6,19 @@ from AlphaLens.SubAgent.FinancialAgent.financial_tools import get_company_info, 
 from AlphaLens.SubAgent.FinancialAgent.financial_model import FinancialReport
 from AlphaLens.SubAgent.FinancialAgent.financial_prompts import FINANCIAL_REPORT_PROMPT
 from AlphaLens.config.llms import get_llm_for_tools,get_report_writer_llm
+from langsmith import traceable
 
 financial_tools = [get_company_info, get_income_statement, get_balance_sheet, get_cash_flow, get_key_ratios]
 financial_tool_node = ToolNode(financial_tools)
 
-
+@traceable
 def collect_financial_data_node(state: FinancialState)->FinancialState:
 
     financial_tool_llm = get_llm_for_tools().bind_tools(financial_tools)
     response = financial_tool_llm.invoke(state["messages"])
     return {"messages": [response]}
     
-    
+@traceable 
 def financial_report_node(state: FinancialState)->FinancialState:
     """
     Report-writing LLM — receives ONLY plain text data, no tool blocks.

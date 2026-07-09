@@ -4,7 +4,7 @@ import numpy as np
 from AlphaLens.SubAgent.risk_agent.risk_agent_prompt import RISK_REPORT_SYSTEM_PROMPT
 from langchain_core.messages import HumanMessage,SystemMessage
 from AlphaLens.SubAgent.risk_agent.risk_agent_model import RiskReport
-
+from langsmith import traceable
 from AlphaLens.config.llms import get_report_writer_llm
 from AlphaLens.SubAgent.risk_agent.risk_agent_state import RiskState
 
@@ -43,7 +43,7 @@ def risk_report_node(state: RiskState) -> RiskState:
                     'computed_risks': computed}}
 
 #=====================================================================================================
-
+@traceable
 def liquidity_risk(ticker: str) -> dict:
     info= yf.Ticker(ticker).info
 
@@ -55,7 +55,7 @@ def liquidity_risk(ticker: str) -> dict:
             "float_shares":      float_shares,
             "current_ratio":    current_ratio,}
 
-
+@traceable
 def Business_risk(ticker:str)-> dict:
     symbol= yf.Ticker(ticker)
     info = symbol.info 
@@ -76,7 +76,7 @@ def Business_risk(ticker:str)-> dict:
     except Exception as e:
         return {"sector": sector, "revenue_growth": "Unknown", "error": str(e)}
     
-
+@traceable
 def Financial_risk (ticker:str)-> dict:
     symbol= yf.Ticker(ticker)
     info = symbol.info 
@@ -134,7 +134,7 @@ def Financial_risk (ticker:str)-> dict:
     except Exception as e:
         return {"debt_to_equity": debt_to_equity, "error": str(e)}
 
-
+@traceable
 def market_risk(ticker: str) -> dict:
     symbol= yf.Ticker(ticker)
     info = symbol.info

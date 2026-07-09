@@ -2,7 +2,9 @@ from AlphaLens.graph.graph import workflow
 from Query_Extraction.ticker_selection import ticker_resolver
 import asyncio
 import json
+from langsmith import traceable
 
+@traceable
 async def main(userquery: str):
     ticker = ticker_resolver(userquery)
     orchestrator_state = await workflow.ainvoke({"ticker": ticker})

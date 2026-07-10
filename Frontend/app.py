@@ -44,56 +44,57 @@ def main():
         with col2:
             submit = st.form_submit_button("Analyze", use_container_width=True)
 
-    # 3. Handle the API Call and save to session_state
-    if submit and query:
-        with st.spinner("Analyzing..."):
-            try:
-                response= requests.post(
-                    f"{API_URL}/search_company", 
-                    json={"userquery": query}  
-                    )
-                response.raise_for_status() # Catch HTTP errors
-                st.session_state.chosen_ticker = None
-                st.session_state.memo = None
-                st.session_state.company_name = response.json()
-            except Exception as e:
-                st.error(f"Failed to fetch data: {e}")
-                return
+    # # 3. Handle the API Call and save to session_state
+    # if submit and query:
+    #     with st.spinner("Analyzing..."):
+    #         try:
+    #             response= requests.post(
+    #                 f"{API_URL}/search_company", 
+    #                 json={"userquery": query}  
+    #                 )
+    #             response.raise_for_status() # Catch HTTP errors
+    #             st.session_state.chosen_ticker = None
+    #             st.session_state.memo = None
+    #             st.session_state.company_name = response.json()
+    #         except Exception as e:
+    #             st.error(f"Failed to fetch data: {e}")
+    #             return
 
-    if st.session_state.company_name :
-        if st.session_state.company_name['status'] == "resolved":
-            chosen_ticker = st.session_state.company_name['ticker']
-            st.session_state.chosen_ticker= chosen_ticker
-            st.rerun()
+    # if st.session_state.company_name :
+    #     if st.session_state.company_name['status'] == "resolved":
+    #         chosen_ticker = st.session_state.company_name['ticker']
+    #         st.session_state.chosen_ticker= chosen_ticker
+    #         st.rerun()
 
-        elif st.session_state.company_name['status'] == "needs_confirmation":
-            st.warning("Multiple matches found. Please select the correct company:")
+    #     elif st.session_state.company_name['status'] == "needs_confirmation":
+    #         st.warning("Multiple matches found. Please select the correct company:")
         
-            options = {
-                f"{c['name']} ({c['ticker']}) - [{c['exchange']}]": c['ticker'] 
-                for c in st.session_state.company_name['candidates']
-            }
+    #         options = {
+    #             f"{c['name']} ({c['ticker']}) - [{c['exchange']}]": c['ticker'] 
+    #             for c in st.session_state.company_name['candidates']
+    #         }
 
-            selected_display = st.radio(
-            "Select Target Company:", 
-            options=list(options.keys())
-            )
+    #         selected_display = st.radio(
+    #         "Select Target Company:", 
+    #         options=list(options.keys())
+    #         )
 
-            if st.button("Confirm Selection", type="primary"):
-                st.session_state.chosen_ticker = options[selected_display]
-                st.rerun()
-    
-    if st.session_state.chosen_ticker:
-        with st.spinner(f"Running full analysis for {st.session_state.chosen_ticker}..."):
-            try:
-                response_memo = requests.post(
-                    f"{API_URL}/research", 
-                    json={"userquery": st.session_state.chosen_ticker}
-                )
-                response_memo.raise_for_status()
-                st.session_state.memo = response_memo.json()
-            except Exception as e:
-                st.error(f"Failed to generate memo: {e}")
+    #         if st.button("Confirm Selection", type="primary"):
+    #             st.session_state.chosen_ticker = options[selected_display]
+    #             st.rerun()
+    if submit and query:
+        st.session_state.chosen_ticker = query
+        if st.session_state.chosen_ticker:
+            with st.spinner(f"Running full analysis for {st.session_state.chosen_ticker}..."):
+                try:
+                    response_memo = requests.post(
+                        f"{API_URL}/research", 
+                        json={"userquery": st.session_state.chosen_ticker}
+                    )
+                    response_memo.raise_for_status()
+                    st.session_state.memo = response_memo.json()
+                except Exception as e:
+                    st.error(f"Failed to generate memo: {e}")
 
 
     # 4. Only render the dashboard and chat if a memo exists

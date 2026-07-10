@@ -1,10 +1,10 @@
 from Query_Extraction.query_extraction_model import TickerExtraction
 from AlphaLens.config.llms import get_report_writer_llm
 from langchain_core.prompts import ChatPromptTemplate
-from AlphaLens.utils.yf_utils import yf_search_with_retry
-import logging
+import requests
+import yfinance as yf
+from AlphaLens.utils.yf_utils import yf_delay
 
-logger = logging.getLogger(__name__)
 
 
 def ticker_extraction_tool(query: str) -> dict:
@@ -13,14 +13,13 @@ def ticker_extraction_tool(query: str) -> dict:
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", """
-                You are a financial data assistant. Extract the full official company name
-                and its stock ticker symbol from the user's query.
-                If the company cannot be identified, set company_name and ticker to 'UNKNOWN'.
+                you have to extract the full official name of the company
+                Always use the Safe Search tool for web Search and use that for finding the official name of the company
                 """),
-        ("human", """
+        ("human", f"""
                     Analyze the following user query:
                     ---
-                    Query: "{user_prompt}"
+                    Query: "{{user_prompt}}"
                     ---
                     """)
         ])
@@ -29,59 +28,36 @@ def ticker_extraction_tool(query: str) -> dict:
     llm_response = chain.invoke({"user_prompt": query})
     result = llm_response.model_dump()
 
-    # LLM could not identify a company at all
-    if result['company_name'] == 'UNKNOWN' or result['ticker'] == 'UNKNOWN':
+    if result['company_name'] == 'UNKNOWN':
         return {"status": "not_found", "message": "Could not identify a company from your query."}
 
-    llm_ticker = result.get('ticker', '').strip().upper()
+    session = requests.Session()
+    session.headers.update({"User-Agent": "Mozilla/5.0 ..."})
 
-    # --- Try yf.Search for canonical ticker resolution ---
-    try:
-        quotes = yf_search_with_retry(result['company_name'], max_results=3)
-    except RuntimeError as exc:
-        # yf.Search exhausted retries (e.g. IP-level 429).
-        # Fall back to the ticker the LLM already extracted — better than failing.
-        logger.warning(
-            "yf.Search failed (%s). Falling back to LLM-extracted ticker '%s'.",
-            exc, llm_ticker,
-        )
-        if llm_ticker:
-            return {
-                "status": "resolved",
-                "ticker": llm_ticker,
-                "name": result.get('official_company_name') or result['company_name'],
-                "source": "llm_fallback",   # signals downstream that search was skipped
-            }
-        return {"status": "error", "message": str(exc)}
-
-    if not quotes:
-        # Search succeeded but returned nothing — still use LLM ticker if available
-        if llm_ticker:
-            return {
-                "status": "resolved",
-                "ticker": llm_ticker,
-                "name": result.get('official_company_name') or result['company_name'],
-                "source": "llm_fallback",
-            }
+    yf_delay()
+    search = yf.Search(result['company_name'], max_results=5, session=session)  # 5, not 1
+    #no match
+    if not search.quotes:
         return {"status": "not_found", "message": f"No ticker found for '{result['company_name']}'"}
 
     # Only ONE match
-    if len(quotes) == 1:
-        q = quotes[0]
-        return {
-            "status": "resolved",
-            "ticker": q['symbol'],
-            "name": q.get('longname') or q.get('shortname', q['symbol']),
-        }
+    if len(search.quotes) == 1:
+        yf_delay()
+        ticker_obj = yf.Ticker(search.quotes[0]['symbol'])
+        info = ticker_obj.info
+        return {"status": "resolved", "ticker": search.quotes[0]['symbol'], "name": info.get('longName') or info.get('shortName') }
 
-    # MULTIPLE matches — let user pick
-    candidates = [
-        {
-            "ticker": q['symbol'],
-            "name": q.get('longname') or q.get('shortname', q['symbol']),
-            "exchange": q.get('exchange', 'Unknown'),
-        }
-        for q in quotes[:5]
-    ]
+    # MULTIPLE matches 
+    candidates = []
+    for quote in search.quotes[:5]:
+        yf_delay()
+        ticker_obj = yf.Ticker(quote['symbol'])
+        info = ticker_obj.info
+        candidates.append({
+            "ticker": quote['symbol'],
+            "name": info.get('longName') or info.get('shortName', quote['symbol']),
+            "exchange": info.get('exchange', 'Unknown'),
+        })
 
     return {"status": "needs_confirmation", "candidates": candidates}
+

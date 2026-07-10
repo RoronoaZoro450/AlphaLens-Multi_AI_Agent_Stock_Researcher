@@ -43,20 +43,22 @@ def ticker_extraction_tool(query: str) -> dict:
     # Only ONE match
     if len(search.quotes) == 1:
         yf_delay()
-        ticker_obj = yf.Ticker(search.quotes[0]['symbol'])
-        info = ticker_obj.info
-        return {"status": "resolved", "ticker": search.quotes[0]['symbol'], "name": info.get('longName') or info.get('shortName') }
+        q = search.quotes[0]
+        return {
+            "status": "resolved",
+            "ticker": q['symbol'],
+            "name": q.get('longname') or q.get('shortname', q['symbol']),
+        }
 
-    # MULTIPLE matches 
-    candidates = []
-    for quote in search.quotes[:3]:
-        yf_delay()
-        ticker_obj = yf.Ticker(quote['symbol'])
-        info = ticker_obj.info
-        candidates.append({
-            "ticker": quote['symbol'],
-            "name": info.get('longName') or info.get('shortName', quote['symbol']),
-            "exchange": info.get('exchange', 'Unknown'),
-        })
+    # MULTIPLE matches — use fields already present in the search result (zero extra API calls)
+    candidates = [
+        {
+            "ticker": q['symbol'],
+            "name": q.get('longname') or q.get('shortname', q['symbol']),
+            "exchange": q.get('exchange', 'Unknown'),
+        }
+        for q in search.quotes[:3]
+    ]
 
     return {"status": "needs_confirmation", "candidates": candidates}
+

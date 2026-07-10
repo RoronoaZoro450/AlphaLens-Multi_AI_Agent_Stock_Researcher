@@ -6,13 +6,18 @@ from langsmith import traceable
 
 @traceable
 async def main(userquery: str):
-    ticker = ticker_resolver(userquery)
+    try:
+        ticker = ticker_resolver(userquery)
+    except (ValueError, RuntimeError) as exc:
+        print(f"\n[Error] {exc}")
+        return
+
     orchestrator_state = await workflow.ainvoke({"ticker": ticker})
     memo = orchestrator_state["synthesis"]
-    ticker=orchestrator_state["ticker"]
-    f_memo=json.dumps(memo, indent=2)
+    ticker = orchestrator_state["ticker"]
+    f_memo = json.dumps(memo, indent=2)
     print(f_memo)
 
 if __name__ == "__main__":
-    query=input("query :")
+    query = input("query: ")
     asyncio.run(main(query))

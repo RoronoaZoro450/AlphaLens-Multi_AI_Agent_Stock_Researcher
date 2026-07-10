@@ -68,6 +68,7 @@ def main():
 
         elif st.session_state.company_name['status'] == "needs_confirmation":
             st.warning("Multiple matches found. Please select the correct company:")
+            st.info("If you cannot find your stock in the options, enter a more specific name of the company or its exact ticker.")
         
             options = {
                 f"{c['name']} ({c['ticker']}) - [{c['exchange']}]": c['ticker'] 

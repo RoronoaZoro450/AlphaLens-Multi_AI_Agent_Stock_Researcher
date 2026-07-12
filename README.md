@@ -32,7 +32,7 @@ https://github.com/user-attachments/assets/56ac4fe0-f3e7-4f43-99ca-b15fb011251f
 
 </div>
 
-> the video above shows a full run end-to-end. To try it yourself
+> the video above shows a full run end-to-end
 
 ---
 

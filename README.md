@@ -3,7 +3,7 @@
   <h3>The Multi-Agent AI Stock Researcher</h3>
   
   <p>
-    <a href="https://alphalens-multiaiagentstockresearcher.streamlit.app/"><strong>🔥 Try the Live Demo</strong></a> • 
+    <a href="#-demo"><strong>🎥 Watch the Demo</strong></a> • 
     <a href="#-getting-started"><strong>🚀 Getting Started</strong></a> • 
     <a href="#%EF%B8%8F-how-it-works"><strong>🧠 Architecture</strong></a>
   </p>
@@ -22,7 +22,27 @@
 
 > A simple Stock Search turns into a **full equity research memo** — complete with recommendation, conviction, price target, and thesis — by running **five specialist AI agents in parallel** and synthesizing their findings into one structured report.
 
-*Note: The demo uses free-tier hosting, so the first load can take ~30s to wake up.*
+---
+
+## 🎥 Demo
+
+<div align="center">
+
+<!--
+  Replace this with your actual demo video or GIF.
+  Easiest option: open this file in GitHub's web editor and drag your
+  video/GIF directly into this section — GitHub auto-generates an
+  embeddable link like https://github.com/user-attachments/assets/...
+
+  Hosting on YouTube or Loom instead? Use a clickable thumbnail:
+  [![Watch the demo](path/to/thumbnail.png)](https://youtu.be/your-video-id)
+-->
+
+*🎬 Full walkthrough video coming soon*
+
+</div>
+
+> **Note:** This project isn't hosted publicly right now — the video above shows a full run end-to-end. To try it yourself, follow [Getting Started](#-getting-started) below.
 
 ---
 
@@ -97,8 +117,8 @@ A **Synthesis agent** reconciles all five reports into a single Pydantic-validat
   - `Llama 3.3 70B` *(report writing)*
   - `GPT-OSS-120B` *(synthesis + chat)*
 - **Data:** `yfinance`, `pandas-ta`, `ROIC.ai`, NumPy
-- **Backend:** FastAPI, Pydantic, Docker + `uv` (Deployed on Render)
-- **Frontend:** Streamlit, Plotly (Deployed on Streamlit Community Cloud)
+- **Backend:** FastAPI, Pydantic, Docker + `uv`
+- **Frontend:** Streamlit, Plotly
 
 ---
 
@@ -138,10 +158,10 @@ uv sync
 Create a `.env` file in the root directory:
 ```env
 # Required — powers every agent, free at console.groq.com
-GROQ_API_KEY=your_key          
+GROQ_API_KEY=your_key
 
 # Optional — earnings-call data; agent degrades gracefully without it
-ROC_AI_API_KEY=your_key        
+ROC_AI_API_KEY=your_key
 
 # Optional — LangSmith Observability
 LANGCHAIN_TRACING_V2=true

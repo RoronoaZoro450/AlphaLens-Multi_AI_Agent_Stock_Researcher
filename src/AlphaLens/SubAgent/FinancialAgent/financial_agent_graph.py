@@ -15,7 +15,4 @@ graph.add_edge("financial_tool_node", "collect_financial_data")
 
 graph.add_edge("financial_report_writing", END)
  
-# memory = MemorySaver()
-
-#  checkpointer=memory
 financial_workflow= graph.compile()

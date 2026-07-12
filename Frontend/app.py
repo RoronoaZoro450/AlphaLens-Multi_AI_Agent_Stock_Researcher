@@ -4,7 +4,9 @@ import requests
 # 1. CRITICAL: set_page_config must be the very first Streamlit command
 st.set_page_config(page_title="AlphaLens Research Memo", page_icon="📊", layout="wide")
 
+# pyrefly: ignore [missing-import]
 from Chatbot.run_chatbot import run_chatbot
+# pyrefly: ignore [missing-import]
 from components import (
     render_header,
     render_summary,
@@ -17,7 +19,7 @@ from components import (
     render_confidence_gauge,
 )
 
-API_URL = "https://alphalens-multi-ai-agent-stock-researcher.onrender.com"
+API_URL = "http://127.0.0.1:8000"
 
 # 2. Initialize Session State Variables
 if "memo" not in st.session_state:
@@ -60,17 +62,17 @@ def main():
                 st.error(f"Failed to fetch data: {e}")
                 return
 
-    if st.session_state.company_name :
+    if st.session_state.company_name:
         if st.session_state.company_name['status'] == "resolved":
-            chosen_ticker = st.session_state.company_name['ticker']
-            st.session_state.chosen_ticker= chosen_ticker
+            st.session_state.chosen_ticker = st.session_state.company_name['ticker']
+            st.session_state.company_name = None  # Clear to prevent infinite rerun loop
             st.rerun()
 
         elif st.session_state.company_name['status'] == "needs_confirmation":
             st.warning("Multiple matches found. Please select the correct company:")
         
             options = {
-                f"{c['name']} ({c['ticker']}) - [{c['exc']}]": c['ticker']
+                f"{c['name']} ({c['ticker']}) - [{c['exchange']}]": c['ticker']
                 for c in st.session_state.company_name['candidates']
             }
 
@@ -81,20 +83,22 @@ def main():
 
             if st.button("Confirm Selection", type="primary"):
                 st.session_state.chosen_ticker = options[selected_display]
+                st.session_state.company_name = None  # Clear to prevent re-showing warning
                 st.rerun()
 
     
-    if st.session_state.chosen_ticker:
-            with st.spinner(f"Running full analysis for {st.session_state.chosen_ticker}..."):
-                try:
-                    response_memo = requests.post(
-                        f"{API_URL}/research", 
-                        json={"userquery": st.session_state.chosen_ticker}
-                    )
-                    response_memo.raise_for_status()
-                    st.session_state.memo = response_memo.json()
-                except Exception as e:
-                    st.error(f"Failed to generate memo: {e}")
+    # Guard: only fetch memo if ticker is set but memo hasn't been fetched yet
+    if st.session_state.chosen_ticker and not st.session_state.memo:
+        with st.spinner(f"Running full analysis for {st.session_state.chosen_ticker}..."):
+            try:
+                response_memo = requests.post(
+                    f"{API_URL}/research",
+                    json={"userquery": st.session_state.chosen_ticker}
+                )
+                response_memo.raise_for_status()
+                st.session_state.memo = response_memo.json()
+            except Exception as e:
+                st.error(f"Failed to generate memo: {e}")
 
 
     # 4. Only render the dashboard and chat if a memo exists
@@ -122,7 +126,7 @@ def main():
 
         # Render Chatbot Sidebar
         with st.sidebar:
-            st.header("AI Bot")
+            st.header("Stock Chatbot")
             
             for msg in st.session_state.ui_chat_history:
                 with st.chat_message(msg["role"]):

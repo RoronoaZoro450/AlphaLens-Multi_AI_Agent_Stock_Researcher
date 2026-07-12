@@ -32,7 +32,7 @@ https://github.com/user-attachments/assets/56ac4fe0-f3e7-4f43-99ca-b15fb011251f
 
 </div>
 
-> the video above shows a full run end-to-end
+> The video above shows a full run end-to-end
 
 ---
 
@@ -157,9 +157,6 @@ ROC_AI_API_KEY=your_key
 LANGCHAIN_TRACING_V2=true
 LANGCHAIN_API_KEY=your_key     # free at smith.langchain.com
 LANGCHAIN_PROJECT=AlphaLens
-
-# ticker Extraction
-FMP_API_KEY=you_key
 ```
 
 ### 4. Run the Application

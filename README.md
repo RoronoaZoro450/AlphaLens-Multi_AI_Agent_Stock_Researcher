@@ -28,15 +28,7 @@
 
 <div align="center">
 
-<!--
-  Replace this with your actual demo video or GIF.
-  Easiest option: open this file in GitHub's web editor and drag your
-  video/GIF directly into this section — GitHub auto-generates an
-  embeddable link like https://github.com/user-attachments/assets/...
-
-  Hosting on YouTube or Loom instead? Use a clickable thumbnail:
-  [![Watch the demo](path/to/thumbnail.png)](https://youtu.be/your-video-id)
--->
+https://github.com/user-attachments/assets/01a32da3-697c-475f-8a00-6b06710e1fcd
 
 *🎬 Full walkthrough video coming soon*
 

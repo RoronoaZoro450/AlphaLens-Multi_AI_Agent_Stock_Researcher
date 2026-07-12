@@ -28,13 +28,11 @@
 
 <div align="center">
 
-https://github.com/user-attachments/assets/01a32da3-697c-475f-8a00-6b06710e1fcd
-
-*🎬 Full walkthrough video coming soon*
+https://github.com/user-attachments/assets/56ac4fe0-f3e7-4f43-99ca-b15fb011251f
 
 </div>
 
-> **Note:** This project isn't hosted publicly right now — the video above shows a full run end-to-end. To try it yourself, follow [Getting Started](#-getting-started) below.
+> the video above shows a full run end-to-end. To try it yourself
 
 ---
 
